@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 5vh;
+        }
+        #weather {
+            font-size: 2vw;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 1vw;
+        }
+        input, button {
+            font-size: 1.5vw;
+            padding: 0.5vw;
+        }
+    </style>
+</head>
+<body id = "body", style = "background-color: #f2f2f2;">
+    <h1>Weather App</h1>
+    <input type="text" id="zipCode" placeholder="Enter ZIP code">
+    <button onclick="getWeather()">Get Weather</button>
+    <button onclick="toggleTemperatureUnit()">Toggle °C/°F</button>
+    <label for="fav">Favorites</label>
+    <select id="fav" name="fav" onchange="selectFavorite()">
+    </select>
+    <button onclick="onClickAddFavorite()">Add to Favorites</button>
+    <button onclick="onClickDeleteFavorite()">Delete Selected</button>
+    </select> 
+    <div id="weather">Loading...</div>
+    <div id="forecast"></div>
+    
+    <script>
+    let isCelsius = true;
+
+    async function getWeather() {
+        const zipCode = document.getElementById('zipCode').value;
+        if (validateZipCode(zipCode)) {
+            console.log(`Fetching weather for ${zipCode}`);
+            fetchWeather(zipCode);
+        }
+        return;
+         
+    }
+
+    async function fetchWeather(zipCode) {
+        const response = await fetch(`/api/weather/${zipCode}`);
+        const data = await response.json();
+        if (data.error) {
+            document.getElementById('weather').innerText = data.error;
+            document.getElementById('forecast').innerHTML = '';
+            return;
+        }
+        const temperature = isCelsius ? data.currentTempC : data.currentTempF;
+        document.getElementById('weather').innerText = `The temperature in ${data.location}, ${data.state} is ${temperature}°${isCelsius ? 'C' : 'F'}.`;
+        document.getElementById('forecast').innerHTML = 
+            `<table>
+                <tr>
+                    <th>Date</th>
+                    <th>Min Temp</th>
+                    <th>Max Temp</th>
+                    <th>Condition</th>
+                </tr>
+                ${data.forecast.map(day => `
+                <tr>
+                    <td>${day.date}</td>
+                    <td>${isCelsius ? day.minTempC : day.minTempF}°${isCelsius ? 'C' : 'F'}</td>
+                    <td>${isCelsius ? day.maxTempC : day.maxTempF}°${isCelsius ? 'C' : 'F'}</td>
+                    <td>${day.condition}</td>
+                </tr>`).join('')}
+            </table>`;
+    return;
+
+    }
+
+
+    function validateZipCode(zipCode) {
+        if (!/^\d{5}(-\d+)?$/.test(zipCode)) {
+            document.getElementById('weather').innerText = 'Please enter a valid ZIP code.';
+            document.getElementById('forecast').innerHTML = '';
+            return;
+        }
+        return true;
+    }
+    
+    async function onClickAddFavorite() {
+        const zipCode = document.getElementById('zipCode').value;
+        const location = document.getElementById('weather').innerHTML;
+        validateZipCode(zipCode);
+        console.log("Adding favorite");
+        const favSelect = document.getElementById('fav');
+        const currentData = await fetch(`/api/favorite/${zipCode}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ zipCode }),
+        });
+        if (currentData.status === 201) {
+            console.log("Adding a new favorite")
+            const data = await currentData.json();
+            const option = document.createElement('option');
+            option.value = zipCode;
+            option.text = `${zipCode}`;
+            favSelect.add(option);
+        }
+    }
+
+    async function onClickDeleteFavorite() {
+        try {
+            const favSelect = document.getElementById('fav');
+            if (!favSelect || favSelect.selectedIndex === -1) {
+                console.error("No favorite selected");
+                return;
+            }
+
+            const selectedIndex = favSelect.selectedIndex;
+            const zipCode = favSelect.options[selectedIndex].value;
+            validateZipCode(zipCode);
+
+            console.log(`Deleting favorite: ${zipCode}`);
+
+            // Remove the selected option from the UI
+            favSelect.remove(selectedIndex);
+
+            // Send DELETE request to API
+            const response = await fetch(`/api/favorite/${zipCode}`, {
+                method: "DELETE",
+            });
+
+            if (response.status === 204) {
+                console.log("Favorite deleted successfully");
+            } else {
+                console.error(`Failed to delete favorite. Status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error deleting favorite:", error);
+        }
+    }
+
+    async function selectFavorite() {
+        const favSelect = document.getElementById('fav');
+        const zipCode = favSelect.options[favSelect.selectedIndex].value;
+        document.getElementById('zipCode').value = zipCode;
+        validateZipCode(zipCode);
+        getWeather();
+    }
+
+    function toggleTemperatureUnit() {
+        isCelsius = !isCelsius;
+        getWeather();
+    }
+
+
+    </script>
+</body>
+</html>
+
+
+
+
