@@ -1,0 +1,15 @@
+Dear TA/ Professor,
+
+I am hoping to take this class to really learn both the content as well as "best practices". 
+My real hope is that at the end of this class, I can build a cross platform app that I can actually put on the app store and play store.
+
+I have been doing a lot of things sloppily in the past due to lack of good training, 
+proper guidance or meaningful code reviews. 
+
+I request you whenever possible to also give me stylistic guidance/ i.e. whether a certain design choice makes sense or not etc.
+
+In this assignment, I tried to properly learn how to "build" using Docker and creating an environment file, in addition to the requirements. 
+
+Thanks a lot in advance. 
+Best,
+Gaurav.
