@@ -32,3 +32,4 @@ WEATHER_API_KEY= # Your API key here
 ```bash
 docker compose up --build
 ```
+# weather_dockerized
