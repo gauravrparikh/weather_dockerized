@@ -1,4 +1,3 @@
-# ece5901hw2 - Gaurav Rajesh Parikh
 # Weather Web App with Node.js, Redis, and Docker
 
 A web application that fetches weather data from an external API, caches responses with Redis, and runs in a Dockerized environment.
@@ -17,7 +16,7 @@ A web application that fetches weather data from an external API, caches respons
 
 ## Getting Started
 
-1. Clone the repository
+1. Clone the repository git clone https://github.com/gauravrparikh/weather_dockerized.git
 
 2. Create a `.env` file in the root directory with the following environment variables:
 
@@ -25,7 +24,7 @@ A web application that fetches weather data from an external API, caches respons
 PORT=3000
 REDIS_HOST=redis
 REDIS_PORT=6379
-WEATHER_API_KEY= # Your API key here
+WEATHER_API_KEY= # Your API key here, obtained from https://www.weatherapi.com/
 ```
 3. Build and run the application using Docker Compose:
 
